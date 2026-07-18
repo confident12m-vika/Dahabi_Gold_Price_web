@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dahabigoldprice.com/sitemap.xml
