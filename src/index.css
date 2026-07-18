@@ -1,0 +1,539 @@
+/* ═══════════════════════════════════════════════
+   ذهبي — تطبيق ويب شامل، بنفس هوية التطبيق الحقيقي
+   ═══════════════════════════════════════════════ */
+:root {
+  --bg: #FBF9F4;
+  --card-bg: #FDFBF7;
+  --gold: #D4AF37;
+  --gold-light: #F5D97A;
+  --gold-dark: #9A7B1E;
+  --silver-light: #BDBDBD;
+  --silver-dark: #9E9E9E;
+  --text: #2A2A2A;
+  --text-soft: #6B6B6B;
+  --border: #EFE9DA;
+  --blue-bg: #E8F0F5;   --blue-icon: #3A7CA5;
+  --orange-bg: #FBEEDC; --orange-icon: #E8912D;
+  --purple-bg: #F3E8F3; --purple-icon: #9C4DA0;
+  --green-bg: #E6F2EA;  --green-icon: #3AA55D;
+  --red: #D64545;
+  --radius: 18px;
+  --topbar-h: 60px;
+  --bottomnav-h: 68px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Cairo', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding-top: var(--topbar-h);
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ═══════════ الشريط العلوي ═══════════ */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h); z-index: 200;
+  background: rgba(251,249,244,0.95); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; padding: 0 18px; }
+.hamburger { display: none; background: none; border: none; font-size: 22px; color: var(--gold-dark); }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; cursor: pointer; }
+.brand-icon { color: var(--gold); }
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.topbar-currency {
+  border: 1.5px solid var(--border); border-radius: 10px; padding: 6px 10px;
+  font-family: inherit; font-weight: 700; font-size: 13px; background: #fff; color: var(--gold-dark);
+}
+.lang-switch { display: flex; gap: 3px; background: #F0EAD8; border-radius: 20px; padding: 3px; }
+.lang-switch button { border: none; background: transparent; padding: 5px 10px; border-radius: 16px; font-size: 12px; font-weight: 700; color: var(--text-soft); }
+.lang-switch button.active { background: var(--gold); color: #fff; }
+.lang-switch-lg button { padding: 9px 16px; font-size: 13px; }
+
+/* ═══════════ القائمة الجانبية (سطح المكتب: دائمة / جوال: منسدلة) ═══════════ */
+.sidenav {
+  position: fixed; top: var(--topbar-h); bottom: 0; inset-inline-start: 0; width: 230px;
+  background: var(--card-bg); border-inline-end: 1px solid var(--border);
+  padding: 18px 12px; display: flex; flex-direction: column; gap: 4px; z-index: 150;
+  overflow-y: auto;
+}
+.sidenav-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;
+  border: none; background: transparent; font-family: inherit; font-size: 15px; font-weight: 600;
+  color: var(--text-soft); text-align: start; width: 100%;
+}
+.sidenav-item:hover { background: #F5EFE0; }
+.sidenav-item.active { background: var(--gold); color: #fff; }
+.sn-icon { font-size: 18px; width: 22px; text-align: center; }
+.sidenav-divider { height: 1px; background: var(--border); margin: 8px 6px; }
+.sidenav-overlay { display: none; }
+
+/* ═══════════ المحتوى الرئيسي ═══════════ */
+.app-main {
+  margin-inline-start: 230px;
+  min-height: calc(100vh - var(--topbar-h));
+  padding-bottom: 30px;
+}
+.view { display: none; }
+.view.active { display: block; }
+.view-inner { max-width: 760px; margin: 0 auto; padding: 24px 20px 90px; }
+.view-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
+.view-header h2 { font-size: 24px; font-weight: 800; }
+h2 { font-size: 24px; font-weight: 800; margin-bottom: 18px; }
+
+/* ═══════════ حالة الأسعار الحية ═══════════ */
+.tool-status { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 13px; color: var(--text-soft); }
+.dot-live { width: 8px; height: 8px; border-radius: 50%; background: #ccc; }
+.dot-live.on { background: #3AA55D; box-shadow: 0 0 8px #3AA55D; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ═══════════ بطاقتا الأسعار الرئيسية ═══════════ */
+.price-cards { display: flex; gap: 10px; margin-bottom: 20px; }
+.price-card { flex: 1; border-radius: 20px; padding: 18px 16px; color: #fff; min-height: 150px; display: flex; flex-direction: column; justify-content: space-between; }
+.pc-silver { background: linear-gradient(135deg, var(--silver-light), var(--silver-dark)); }
+.pc-gold { background: linear-gradient(135deg, var(--gold-light), var(--gold-dark)); }
+.pc-top { font-size: 16px; }
+.pc-price { font-size: 28px; font-weight: 800; text-align: center; }
+.pc-unit { font-size: 12px; opacity: 0.9; text-align: center; }
+.pc-badge { align-self: center; background: rgba(0,0,0,0.18); border-radius: 10px; padding: 3px 12px; font-size: 12px; }
+
+/* ═══════════ شبكة الرئيسية ═══════════ */
+.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; direction: ltr; }
+.grid-card {
+  border: none; border-radius: 18px; padding: 20px 14px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; direction: rtl;
+}
+.gc-icon { font-size: 30px; }
+.grid-card h3 { font-size: 16px; }
+.grid-card p { font-size: 12px; color: var(--text-soft); }
+.gc-blue { background: var(--blue-bg); } .gc-blue h3 { color: var(--blue-icon); }
+.gc-orange { background: var(--orange-bg); } .gc-orange h3 { color: var(--orange-icon); }
+.gc-purple { background: var(--purple-bg); } .gc-purple h3 { color: var(--purple-icon); }
+.gc-green { background: var(--green-bg); } .gc-green h3 { color: var(--green-icon); }
+
+/* ═══════════ الحاسبة (بطاقة عامة) ═══════════ */
+.section-title-sm { font-size: 19px; font-weight: 800; margin-bottom: 14px; }
+.tool-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 22px; padding: 22px; margin-bottom: 20px; }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.tool-field { margin-bottom: 14px; }
+.tool-field:last-child { margin-bottom: 0; }
+.tool-field label { display: block; font-size: 13px; font-weight: 700; color: var(--text-soft); margin-bottom: 6px; }
+.tool-field select, .tool-field input {
+  width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--border);
+  background: #fff; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text);
+}
+.tool-field select:focus, .tool-field input:focus { outline: none; border-color: var(--gold); }
+
+.segmented { display: flex; background: #F0EAD8; border-radius: 12px; padding: 4px; }
+.seg-btn { flex: 1; border: none; background: transparent; padding: 9px; border-radius: 9px; font-family: inherit; font-weight: 700; font-size: 14px; color: var(--text-soft); }
+.seg-btn.active { background: var(--gold); color: #fff; }
+
+.manual-toggle { display: flex; align-items: center; gap: 12px; margin: 14px 0 6px; font-size: 13px; font-weight: 600; }
+.switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; background: #ddd; border-radius: 24px; transition: .2s; }
+.slider::before { content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; }
+.switch input:checked + .slider { background: var(--gold); }
+.switch input:checked + .slider::before { transform: translateX(18px); }
+[dir="rtl"] .switch input:checked + .slider::before { transform: translateX(-18px); }
+
+.manual-input-wrap { margin-bottom: 16px; }
+.manual-input-wrap input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--gold); font-family: inherit; font-size: 15px; margin-bottom: 6px; }
+.manual-hint { font-size: 11.5px; color: var(--text-soft); }
+
+.result-box { background: linear-gradient(135deg, var(--gold-light), var(--gold-dark)); border-radius: 18px; padding: 22px; text-align: center; color: #fff; }
+.result-box.result-green { background: linear-gradient(135deg, #4CB86E, #2E8049); }
+.result-label { font-size: 13px; opacity: 0.9; margin-bottom: 6px; }
+.result-value { font-size: 32px; font-weight: 800; }
+.result-sub { font-size: 12.5px; opacity: 0.85; margin-top: 6px; }
+
+/* ═══════════ أزرار ═══════════ */
+.btn { display: inline-block; padding: 11px 22px; border-radius: 12px; font-weight: 700; font-size: 14px; border: none; }
+.btn-gold { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #2a2200; }
+.btn-outline { background: transparent; border: 2px solid var(--gold); color: var(--gold-dark); }
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+
+/* ═══════════ الأزواج ═══════════ */
+.pairs-list { display: flex; flex-direction: column; gap: 10px; }
+.pair-row {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px;
+  padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.pair-info { text-align: start; }
+.pair-price { font-size: 19px; font-weight: 800; }
+.pair-label { font-size: 12.5px; color: var(--text-soft); margin-top: 2px; }
+.pair-tag { font-size: 13px; font-weight: 700; color: var(--gold-dark); background: #F7EFD9; padding: 4px 10px; border-radius: 10px; }
+.pair-delete { background: none; border: none; color: var(--red); font-size: 18px; padding: 4px 8px; }
+.empty-hint { text-align: center; color: var(--text-soft); padding: 30px 10px; font-size: 14px; }
+
+/* ═══════════ النوافذ المنبثقة ═══════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  z-index: 300; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal { background: var(--card-bg); border-radius: 22px; padding: 24px; width: 100%; max-width: 400px; max-height: min(90vh, 90dvh); overflow-y: auto; }
+.modal h3 { font-size: 18px; margin-bottom: 16px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.modal-actions .btn { flex: 1; text-align: center; }
+
+/* ═══════════ تبويبات الحاسبات ═══════════ */
+.tabs-strip { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+.tab-btn { background: none; border: none; padding: 10px 6px; font-family: inherit; font-weight: 700; font-size: 14px; color: var(--text-soft); border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tab-btn.active { color: var(--gold-dark); border-bottom-color: var(--gold); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ═══════════ مدخراتي ═══════════ */
+.savings-summary {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold-dark)); border-radius: 18px;
+  padding: 20px; color: #fff; margin-bottom: 16px; display: flex; justify-content: space-around; text-align: center;
+}
+.ss-item .ss-val { font-size: 19px; font-weight: 800; }
+.ss-item .ss-lbl { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+.savings-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.saving-row { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; }
+.saving-pl { font-weight: 800; font-size: 16px; }
+.saving-pl.up { color: var(--green-icon); }
+.saving-pl.down { color: var(--red); }
+.saving-pct { font-size: 12px; font-weight: 600; }
+.saving-meta { font-size: 13.5px; font-weight: 700; }
+
+/* ═══════════ المهر ═══════════ */
+.weight-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.weight-chips button {
+  border: 1.5px solid var(--border); background: #fff; border-radius: 12px; padding: 10px 16px;
+  font-family: inherit; font-weight: 700; font-size: 14px; color: var(--text-soft);
+}
+.weight-chips button.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+
+/* ═══════════ المحول ═══════════ */
+.conv-row { display: flex; gap: 10px; align-items: stretch; }
+.conv-row .currency-select-btn { flex: 1; min-width: 0; }
+.conv-row input, .conv-result {
+  flex: 1.3; min-width: 0; width: 0; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--border);
+  font-size: 16px; font-weight: 700; background: #fff;
+}
+.conv-result { display: flex; align-items: center; background: #F7EFD9; border-color: var(--gold); color: var(--gold-dark); }
+.conv-swap { display: block; margin: 6px auto; background: var(--gold); color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 18px; }
+
+/* ═══════════ جدول أسعار الصرف ═══════════ */
+.exchange-table { display: flex; flex-direction: column; gap: 8px; }
+.ex-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; }
+.ex-code { font-weight: 800; color: var(--gold-dark); font-size: 13px; }
+.ex-val { font-size: 16px; font-weight: 700; }
+
+/* ═══════════ الإعدادات ═══════════ */
+.settings-group { margin-bottom: 22px; }
+.settings-label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 10px; color: var(--text-soft); }
+.settings-select { width: 100%; max-width: 300px; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--border); font-family: inherit; font-size: 15px; background: #fff; }
+.settings-links { display: flex; flex-direction: column; gap: 4px; margin-bottom: 20px; }
+.settings-link { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; font-weight: 600; font-size: 14.5px; }
+.settings-link .chev { margin-inline-start: auto; color: var(--text-soft); transform: scaleX(-1); }
+[dir="ltr"] .settings-link .chev { transform: none; }
+.settings-note { background: var(--blue-bg); color: var(--blue-icon); border-radius: 14px; padding: 14px 16px; font-size: 13px; margin-bottom: 18px; }
+
+/* ═══════════ شريط التنقّل السفلي (الجوال بشكل أساسي، مخفي بسطح المكتب) ═══════════ */
+.bottom-nav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: #fff; border-top: 1px solid var(--border);
+  padding: 8px 6px calc(env(safe-area-inset-bottom, 0px) + 8px);
+  justify-content: space-around; align-items: center;
+}
+.bn-item { background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #B0AA9A; font-family: inherit; }
+.bn-icon { font-size: 20px; }
+.bn-item span:last-child { font-size: 10.5px; font-weight: 600; }
+.bn-item.active { color: var(--gold-dark); }
+.bn-item.active .bn-icon { color: var(--gold); }
+
+/* ═══════════ استجابة الجوال ═══════════ */
+@media (max-width: 900px) {
+  .hamburger { display: block; }
+  .sidenav {
+    inset-inline-start: 0; transform: translateX(100%); transition: transform .25s ease; width: 260px;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  }
+  [dir="ltr"] .sidenav { transform: translateX(-100%); }
+  .sidenav.open { transform: translateX(0); }
+  .sidenav-overlay.open { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 140; }
+  .app-main { margin-inline-start: 0; padding-bottom: calc(var(--bottomnav-h) + 20px); }
+  .bottom-nav { display: flex; }
+  .tool-grid { grid-template-columns: 1fr 1fr; }
+  .topbar-actions .lang-switch { display: none; }
+}
+@media (max-width: 480px) {
+  .price-cards { flex-direction: row; }
+  .home-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ═══════════ حسابي / تسجيل الدخول ═══════════ */
+.profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-light), var(--gold-dark)); color: #fff; font-size: 30px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
+.profile-email { font-weight: 700; font-size: 15px; margin-bottom: 8px; }
+.profile-sync-note { font-size: 12.5px; color: var(--green-icon); background: var(--green-bg); padding: 8px 12px; border-radius: 10px; display: inline-block; }
+.auth-error { background: #FDECEC; color: var(--red); font-size: 13px; padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; }
+
+/* ═══════════ زر جوجل ═══════════ */
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--text-soft); font-size: 12.5px; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.btn-google {
+  background: #fff; border: 1.5px solid var(--border); color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+}
+.btn-google:hover { background: #f7f7f7; }
+
+/* ═══════════ اختيار العملة القابل للبحث ═══════════ */
+.currency-select-btn {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--border);
+  background: #fff; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+  text-align: start; cursor: pointer;
+}
+.currency-select-btn .cs-code { font-weight: 800; color: var(--gold-dark); }
+.currency-select-btn .cs-name { flex: 1; color: var(--text-soft); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.currency-select-btn .cs-chev { color: var(--text-soft); }
+
+.currency-modal {
+  max-width: 380px; padding: 16px;
+  display: flex; flex-direction: column;
+  max-height: min(80vh, 80dvh);
+}
+.currency-search {
+  width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--gold);
+  font-family: inherit; font-size: 15px; margin-bottom: 12px;
+  flex-shrink: 0;
+}
+.currency-list {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.currency-item {
+  display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 10px;
+  border: none; background: transparent; font-family: inherit; text-align: start; cursor: pointer;
+}
+.currency-item:hover { background: var(--bg); }
+.currency-item.active { background: #F7EFD9; }
+.currency-item .cs-code { font-weight: 800; color: var(--gold-dark); min-width: 42px; }
+.currency-item .cs-name { color: var(--text); font-size: 14px; }
+
+/* ═══════════ صندوق سعر اليمن (صنعاء/عدن) ═══════════ */
+.yemen-box { display: flex; gap: 10px; margin: 14px 0; }
+.yemen-city {
+  flex: 1; background: linear-gradient(135deg, #EAF7EE, #F7EFD9);
+  border-radius: 16px; padding: 16px; text-align: center;
+}
+.yemen-city-name { font-size: 13px; font-weight: 700; color: var(--green-icon); margin-bottom: 4px; }
+.yemen-city-price { font-size: 20px; font-weight: 800; color: var(--text); }
+.yemen-inline { font-size: 13px; color: var(--text-soft); }
+
+/* ═══════════ الصناديق المفضّلة (أسعار الصرف) ═══════════ */
+.fav-boxes { display: flex; gap: 10px; margin: 16px 0; }
+.fav-box {
+  flex: 1; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; padding: 14px; text-align: center;
+}
+.fav-box-value { font-size: 20px; font-weight: 800; color: var(--gold-dark); margin-top: 8px; }
+
+/* ═══════════ صف مدخرات مفصّل ═══════════ */
+.saving-row-detailed { flex-direction: column; align-items: stretch; gap: 8px; }
+.saving-row-top { display: flex; justify-content: space-between; align-items: center; }
+.saving-row-details { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12.5px; color: var(--text-soft); }
+.saving-row-details b { color: var(--text); }
+
+/* ═══════════ أزرار pill (بطاقات الأسعار + الشريط العلوي) ═══════════ */
+.currency-pill, .karat-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(0,0,0,0.18); color: #fff; border: none; border-radius: 10px;
+  padding: 4px 10px; font-size: 12.5px; font-weight: 700; font-family: inherit; cursor: pointer;
+}
+.topbar-actions .currency-pill { background: #F0EAD8; color: var(--gold-dark); }
+.pc-pills { display: flex; gap: 8px; justify-content: center; margin-top: 8px; }
+.karat-pill { appearance: none; -webkit-appearance: none; text-align: center; }
+
+/* ═══════════ وضع اليمن على البطاقة مباشرة ═══════════ */
+.pc-yemen-mode { justify-content: center; gap: 6px; }
+.yemen-mini { display: flex; flex-direction: column; gap: 4px; font-size: 13px; text-align: center; }
+.yemen-mini div { display: flex; justify-content: space-between; gap: 8px; }
+.yemen-mini b { font-size: 15px; }
+
+/* ═══════════ تبويبات الرئيسية (المزيد/الأخبار/الأونصة/المفضلة) ═══════════ */
+.home-tabs {
+  display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 14px;
+  scrollbar-width: none;
+}
+.home-tabs::-webkit-scrollbar { display: none; }
+.home-tab {
+  flex-shrink: 0; border: 1.5px solid var(--border); background: #fff; color: var(--text-soft);
+  border-radius: 20px; padding: 9px 20px; font-family: inherit; font-weight: 700; font-size: 14px;
+}
+.home-tab.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+.home-tab-content { min-height: 120px; margin-bottom: 20px; }
+
+/* ═══════════ قائمة الأونصة ═══════════ */
+.ounce-list { display: flex; flex-direction: column; gap: 10px; }
+.ounce-row {
+  display: flex; align-items: center; gap: 12px; background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px;
+}
+.ounce-badge { color: var(--gold); font-size: 16px; }
+.ounce-label { flex: 1; font-weight: 700; font-size: 14px; }
+.ounce-val { font-weight: 800; font-size: 16px; }
+
+/* ═══════════ أعمدة السعر اليدوي (رئيسية) ═══════════ */
+.manual-three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 90px; }
+.manual-col {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 12px;
+}
+.manual-col .manual-toggle { margin: 0 0 10px; font-size: 12px; }
+.manual-col input { width: 100%; padding: 9px 10px; border-radius: 10px; border: 1.5px solid var(--border); font-family: inherit; }
+@media (max-width: 700px) { .manual-three-col { grid-template-columns: 1fr; } }
+
+/* ═══════════ تبويبا صنعاء/عدن على بطاقة الذهب ═══════════ */
+.yemen-city-tabs { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+.yemen-city-tabs button {
+  border: none; background: rgba(0,0,0,0.15); color: #fff; border-radius: 10px;
+  padding: 5px 14px; font-family: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer;
+}
+.yemen-city-tabs button.active { background: #fff; color: var(--gold-dark); }
+
+/* ═══════════ إعلان ثابت أسفل الشاشة ═══════════ */
+.ad-banner-fixed {
+  position: fixed; left: 0; right: 0; bottom: var(--bottomnav-h, 0);
+  height: 50px; background: #ECECEC; border-top: 1px solid #ccc;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #888; z-index: 90;
+}
+@media (min-width: 901px) { .ad-banner-fixed { bottom: 0; inset-inline-end: 0; margin-inline-start: 230px; } }
+
+/* ═══════════ جدول عملات اليمن (صنعاء/عدن) ═══════════ */
+.yemen-rates-table { display: flex; flex-direction: column; gap: 8px; }
+.yr-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;
+}
+.yr-currency { display: flex; flex-direction: column; }
+.yr-code { font-weight: 800; color: var(--gold-dark); font-size: 14px; }
+.yr-name { font-size: 12px; color: var(--text-soft); }
+.yr-prices { display: flex; gap: 16px; }
+.yr-prices > div { text-align: center; }
+.yr-lbl { display: block; font-size: 10.5px; color: var(--text-soft); }
+.yr-buy { color: var(--green-icon); font-size: 15px; }
+.yr-sell { color: var(--red); font-size: 15px; }
+
+/* ═══════════ جدول اليمن الموحد (صنعاء وعدن جنب بعض) ═══════════ */
+.yr-head { display: flex; padding: 0 16px 8px; font-size: 11.5px; color: var(--text-soft); font-weight: 700; }
+.yr-head-currency { flex: 1.3; }
+.yr-head-city { flex: 1; text-align: center; }
+.yr-row2 {
+  display: flex; align-items: center; background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 14px; padding: 10px 16px; margin-bottom: 8px;
+}
+.yr-row2 .yr-currency { flex: 1.3; }
+.yr-city-vals { flex: 1; text-align: center; font-size: 13px; white-space: nowrap; }
+.yr-sep { color: var(--text-soft); margin: 0 3px; }
+
+/* ═══════════ تبويب اليمن المشترك (خارج الصناديق، فوقهم) ═══════════ */
+.yemen-city-tabs-shared {
+  justify-content: center; margin: 0 0 12px; background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 14px; padding: 6px; width: fit-content; margin-inline: auto;
+}
+.yemen-city-tabs-shared button {
+  background: transparent; color: var(--text-soft); padding: 7px 20px; font-size: 13.5px;
+}
+.yemen-city-tabs-shared button.active { background: var(--gold); color: #fff; }
+
+/* ═══════════ اسم المستخدم وصورته بصفحة الحساب ═══════════ */
+.profile-name { font-weight: 800; font-size: 16px; margin-top: 4px; }
+.profile-avatar-img { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px; object-fit: cover; }
+
+/* ═══════════ التنبيهات ═══════════ */
+.alerts-list { display: flex; flex-direction: column; gap: 10px; }
+.alert-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px;
+}
+.alert-meta { font-size: 12.5px; color: var(--text-soft); margin-bottom: 4px; }
+.alert-target { font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.alert-dir.up { color: var(--green-icon); }
+.alert-dir.down { color: var(--red); }
+.alert-actions { display: flex; align-items: center; gap: 12px; }
+
+/* ═══════════ الصندوقان الكبيران (USD/SAR) بشاشة صرف اليمن ═══════════ */
+.yemen-big-box {
+  flex: 1; background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05));
+  border: 1px solid rgba(212,175,55,0.4); border-radius: 14px; padding: 14px; text-align: center;
+}
+.ybb-code { font-weight: 800; color: var(--gold-dark); font-size: 16px; }
+.ybb-name { font-size: 10px; color: var(--text-soft); margin-bottom: 8px; }
+.ybb-line { font-size: 13px; margin-top: 3px; }
+.ybb-buy { color: var(--green-icon); font-size: 10px; }
+.ybb-sell { color: var(--red); font-size: 10px; }
+.ybb-yer { font-size: 9px; color: var(--text-soft); margin-top: 3px; }
+
+/* ═══════════ صف اليمن المميز (بورد أخضر) ═══════════ */
+.yr-row-yemen { border-color: rgba(58,165,93,0.35) !important; background: rgba(58,165,93,0.05); margin-bottom: 8px; }
+
+/* ═══════════ محتوى ثابت (الخصوصية/من نحن/بريميوم) ═══════════ */
+.static-content h1 { font-size: 24px; color: var(--gold-dark); margin-bottom: 8px; }
+.static-content h2 { font-size: 17px; color: var(--gold-dark); margin: 18px 0 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); }
+.static-content h3 { font-size: 15px; color: var(--gold-dark); margin-bottom: 4px; }
+.static-content p { margin-bottom: 10px; font-size: 14.5px; line-height: 1.8; }
+.static-content ul { padding-inline-start: 20px; margin-bottom: 10px; }
+.static-content li { margin-bottom: 6px; font-size: 14px; }
+.static-content .updated { color: var(--text-soft); font-size: 12.5px; margin-bottom: 14px; }
+.static-content .contact-box, .static-content .vision-box, .static-content .cta-box {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
+  padding: 16px; margin: 14px 0; font-size: 14px;
+}
+.static-content .feature-block {
+  background: var(--bg); border-inline-start: 3px solid var(--gold);
+  border-radius: 10px; padding: 12px 16px; margin: 10px 0;
+}
+.static-content a { color: var(--gold-dark); font-weight: 700; }
+
+/* ═══════════ زر السعر اليدوي الجديد (أيقونة + حفظ) ═══════════ */
+.manual-price-btn-wrap { position: relative; }
+.manual-price-icon {
+  width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 14px;
+  padding: 12px 8px; cursor: pointer; font-family: inherit;
+}
+.manual-price-icon.applied { background: rgba(58,165,93,0.1); border-color: var(--green-icon); }
+.mpi-icon { font-size: 18px; color: var(--gold-dark); }
+.manual-price-icon.applied .mpi-icon { color: var(--green-icon); }
+.mpi-label { font-size: 11px; color: var(--text-soft); text-align: center; }
+.mpi-check { color: var(--green-icon); font-size: 12px; font-weight: 800; }
+.manual-price-panel {
+  position: absolute; top: 100%; left: 0; right: 0; margin-top: 6px; z-index: 50;
+  background: #fff; border: 1.5px solid var(--gold); border-radius: 12px; padding: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.manual-price-panel input {
+  width: 100%; padding: 8px 10px; border-radius: 8px; border: 1.5px solid var(--border);
+  font-family: inherit; margin-bottom: 8px;
+}
+.manual-price-panel-actions { display: flex; gap: 6px; }
+.manual-price-panel-actions .btn { flex: 1; padding: 7px; font-size: 12px; }
+.manual-price-note { font-size: 10.5px; color: var(--green-icon); text-align: center; margin-top: 4px; }
+
+/* ═══════════ قائمة الأخبار ═══════════ */
+.news-list { display: flex; flex-direction: column; gap: 10px; }
+.news-row {
+  display: block; background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px; color: var(--text);
+}
+.news-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.5; }
+.news-meta { font-size: 12px; color: var(--text-soft); }
+
+/* ═══════════ نجمة المفضلة بشاشة الأزواج ═══════════ */
+.pair-star {
+  background: none; border: none; font-size: 20px; color: var(--border);
+  cursor: pointer; padding: 0 6px; line-height: 1;
+}
+.pair-star.active { color: var(--gold); }
+
+/* ═══════════ علامة تقريب (عملة محسوبة عبر الدولار) ═══════════ */
+.yr-approx { font-size: 10px; color: var(--text-soft); margin-inline-start: 3px; }
