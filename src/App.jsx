@@ -4,6 +4,7 @@ import TopBar from './components/TopBar';
 import SideNav from './components/SideNav';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
+import GuestHome from './components/GuestHome';
 import Pairs from './pages/Pairs';
 import Calculator from './pages/Calculator';
 import Converter from './pages/Converter';
@@ -15,35 +16,21 @@ import Profile from './pages/Profile';
 import Privacy from './pages/Privacy';
 import About from './pages/About';
 import Premium from './pages/Premium';
-import Onboarding from './pages/Onboarding';
 import CurrencySetup from './pages/CurrencySetup';
 import { useCurrency } from './contexts/CurrencyContext';
 import { useAuth } from './contexts/AuthContext';
 
-const GUEST_KEY = 'dahabi_guest_v1';
-
 export default function App() {
   const [navOpen, setNavOpen] = useState(false);
   const { baseCurrency, setBaseCurrency } = useCurrency();
-  const { session, restoring, needsCurrencySetup } = useAuth();
-  const [guestSkipped, setGuestSkipped] = useState(() => localStorage.getItem(GUEST_KEY) === '1');
+  const { restoring, session, needsCurrencySetup } = useAuth();
 
-  // لسه نستعيد الجلسة المحفوظة (لو فيه) — ما نعرض ولا شاشة لحد ما نتأكد
+  // لسه نستعيد الجلسة المحفوظة (لو فيه) — لحظة بسيطة قبل ما نعرف هل فيه مستخدم مسجّل
   if (restoring) return null;
 
-  // ما فيه جلسة وما تخطّى كضيف بعد → شاشة الترحيب (دخول/تسجيل/تخطي)
-  if (!session && !guestSkipped) {
-    return (
-      <Onboarding
-        onSkip={() => {
-          localStorage.setItem(GUEST_KEY, '1');
-          setGuestSkipped(true);
-        }}
-      />
-    );
-  }
-
-  // فيه جلسة (تسجيل جديد أو جوجل) لكن أول مرة — لازم يختار عملته الأساسية أول
+  // الاستثناء الوحيد: مستخدم سجّل للتو (بريد مؤكّد أو جوجل) ولسه ما اختار عملته
+  // الأساسية — نطلبها منه مرة واحدة بس قبل ما يدخل التطبيق. أي زائر ضيف يتخطى
+  // هذا تماماً ويشوف الأسعار مباشرة.
   if (session && needsCurrencySetup) {
     return <CurrencySetup />;
   }
@@ -55,7 +42,7 @@ export default function App() {
 
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={session ? <Home /> : <GuestHome />} />
           <Route path="/pairs" element={<Pairs />} />
           <Route path="/calculator" element={<Calculator />} />
           <Route path="/converter" element={<Converter />} />

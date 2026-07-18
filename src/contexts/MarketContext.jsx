@@ -6,6 +6,7 @@ const MarketContext = createContext(null);
 export function MarketProvider({ children }) {
   const [marketData, setMarketData] = useState(null);
   const [status, setStatus] = useState('loading'); // loading | live | error
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -16,6 +17,7 @@ export function MarketProvider({ children }) {
         if (!cancelled) {
           setMarketData(data);
           setStatus('live');
+          setLastUpdated(Date.now());
         }
       } catch (_) {
         if (!cancelled) setStatus('error');
@@ -28,7 +30,7 @@ export function MarketProvider({ children }) {
   }, []);
 
   return (
-    <MarketContext.Provider value={{ marketData, status }}>
+    <MarketContext.Provider value={{ marketData, status, lastUpdated }}>
       {children}
     </MarketContext.Provider>
   );
