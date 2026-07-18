@@ -5,6 +5,7 @@ import SideNav from './components/SideNav';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import GuestHome from './components/GuestHome';
+import GuestLocked from './components/GuestLocked';
 import Pairs from './pages/Pairs';
 import Calculator from './pages/Calculator';
 import Converter from './pages/Converter';
@@ -28,9 +29,7 @@ export default function App() {
   // لسه نستعيد الجلسة المحفوظة (لو فيه) — لحظة بسيطة قبل ما نعرف هل فيه مستخدم مسجّل
   if (restoring) return null;
 
-  // الاستثناء الوحيد: مستخدم سجّل للتو (بريد مؤكّد أو جوجل) ولسه ما اختار عملته
-  // الأساسية — نطلبها منه مرة واحدة بس قبل ما يدخل التطبيق. أي زائر ضيف يتخطى
-  // هذا تماماً ويشوف الأسعار مباشرة.
+  // مستخدم سجّل للتو (بريد مؤكّد أو جوجل) ولسه ما اختار عملته الأساسية — نطلبها مرة واحدة بس
   if (session && needsCurrencySetup) {
     return <CurrencySetup />;
   }
@@ -42,18 +41,23 @@ export default function App() {
 
       <main className="app-main">
         <Routes>
+          {/* الأسعار — تصميم مختلف تماماً للضيف (جدول عمودي) عن المسجّل (بطاقات/تبويبات) */}
           <Route path="/" element={session ? <Home /> : <GuestHome />} />
-          <Route path="/pairs" element={<Pairs />} />
-          <Route path="/calculator" element={<Calculator />} />
-          <Route path="/converter" element={<Converter />} />
-          <Route path="/masareef" element={<Masareef />} />
-          <Route path="/exchange" element={<Exchange />} />
-          <Route path="/alerts" element={<Alerts />} />
-          <Route path="/settings" element={<Settings />} />
+
+          {/* صفحات مفتوحة للجميع بدون أي قيد */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/about" element={<About />} />
           <Route path="/premium" element={<Premium />} />
+
+          {/* صفحات مقفلة على الضيف — تظهر له رسالة "سجّل دخول مجاناً" بدل المحتوى الحقيقي */}
+          <Route path="/pairs" element={session ? <Pairs /> : <GuestLocked titleKey="nav_pairs" />} />
+          <Route path="/calculator" element={session ? <Calculator /> : <GuestLocked titleKey="nav_calc" />} />
+          <Route path="/converter" element={session ? <Converter /> : <GuestLocked titleKey="nav_converter" />} />
+          <Route path="/masareef" element={session ? <Masareef /> : <GuestLocked titleKey="masareef_title" />} />
+          <Route path="/exchange" element={session ? <Exchange /> : <GuestLocked titleKey="nav_exchange" />} />
+          <Route path="/alerts" element={session ? <Alerts /> : <GuestLocked titleKey="nav_alerts" />} />
+          <Route path="/settings" element={session ? <Settings /> : <GuestLocked titleKey="nav_settings" />} />
         </Routes>
       </main>
 

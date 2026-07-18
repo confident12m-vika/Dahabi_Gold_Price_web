@@ -69,6 +69,7 @@ export const I18N = {
     global_gold_ounce:'أونصة الذهب العالمية', global_silver_ounce:'أونصة الفضة العالمية',
     signup_short:'تسجيل', signup_free_title:'سجّل حساباً مجاناً',
     signup_free_desc:'مفضلات · تنبيهات · مزامنة · حاسبات',
+    guest_locked_title:'هذي الميزة لأصحاب الحساب', guest_locked_desc:'سجّل دخول مجاناً للوصول لجميع خدمات التطبيق.',
     reset_local_only:'أنت مسجّل دخول — بياناتك محفوظة بحسابك على السيرفر.',
     reset_confirm:'هل أنت متأكد؟',
   
@@ -172,6 +173,7 @@ export const I18N = {
     global_gold_ounce:'Global Gold Ounce', global_silver_ounce:'Global Silver Ounce',
     signup_short:'Sign up', signup_free_title:'Create a free account',
     signup_free_desc:'Favorites · Alerts · Sync · Calculators',
+    guest_locked_title:'This feature is for account holders', guest_locked_desc:'Sign in for free to access all app services.',
     reset_local_only:'You are signed in — your data is saved to your server account.',
     reset_confirm:'Are you sure?',
   
@@ -275,6 +277,7 @@ export const I18N = {
     global_gold_ounce:'Onza de Oro Global', global_silver_ounce:'Onza de Plata Global',
     signup_short:'Registrarse', signup_free_title:'Crea una cuenta gratis',
     signup_free_desc:'Favoritos · Alertas · Sincronización · Calculadoras',
+    guest_locked_title:'Esta función es para titulares de cuenta', guest_locked_desc:'Inicia sesión gratis para acceder a todos los servicios.',
     reset_local_only:'Has iniciado sesión — tus datos están guardados en tu cuenta del servidor.',
     reset_confirm:'¿Estás seguro?',
   
@@ -378,6 +381,7 @@ export const I18N = {
     global_gold_ounce:'Мировая унция золота', global_silver_ounce:'Мировая унция серебра',
     signup_short:'Регистрация', signup_free_title:'Создайте бесплатный аккаунт',
     signup_free_desc:'Избранное · Оповещения · Синхронизация · Калькуляторы',
+    guest_locked_title:'Эта функция для владельцев аккаунта', guest_locked_desc:'Войдите бесплатно, чтобы получить доступ ко всем сервисам.',
     reset_local_only:'Вы вошли в аккаунт — данные сохранены на сервере.',
     reset_confirm:'Вы уверены?',
   
