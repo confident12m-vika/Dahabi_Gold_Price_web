@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import {
   authSignIn, authSignUp, authSignOut, authGetUser, authRefresh, fetchProfile, updateProfile,
+  authVerifyOtp, authRecover, authUpdatePassword,
   SUPABASE_URL, ANON_KEY,
 } from '../lib/supabase';
 import { loadSession, storeSession, clearSession } from '../lib/localStore';
@@ -70,6 +71,30 @@ export function AuthProvider({ children }) {
     throw new Error('CHECK_EMAIL');
   }
 
+  // يتحقق من كود OTP بعد التسجيل ويسجّل الدخول مباشرة عند النجاح
+  async function verifySignupCode(email, code) {
+    const data = await authVerifyOtp(email, code, 'signup');
+    const s = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
+    storeSession(s);
+    setSession(s);
+    return s;
+  }
+
+  // يرسل بريد استرجاع كلمة المرور (يحتوي كود OTP)
+  async function sendPasswordReset(email) {
+    await authRecover(email);
+  }
+
+  // يتحقق من كود الاسترجاع، يحدّث كلمة المرور الجديدة، ويسجّل الدخول تلقائياً
+  async function verifyRecoveryCode(email, code, newPassword) {
+    const data = await authVerifyOtp(email, code, 'recovery');
+    await authUpdatePassword(data.access_token, newPassword);
+    const s = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
+    storeSession(s);
+    setSession(s);
+    return s;
+  }
+
   async function signOut() {
     if (session) await authSignOut(session.access_token);
     clearSession();
@@ -96,7 +121,10 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, restoring, signIn, signUp, signOut, signInWithGoogle, loadRemoteProfile, syncProfile }}>
+    <AuthContext.Provider value={{
+      session, restoring, signIn, signUp, signOut, signInWithGoogle, loadRemoteProfile, syncProfile,
+      verifySignupCode, sendPasswordReset, verifyRecoveryCode,
+    }}>
       {children}
     </AuthContext.Provider>
   );

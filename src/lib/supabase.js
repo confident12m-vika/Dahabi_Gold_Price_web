@@ -134,10 +134,34 @@ export async function authSignIn(email, password) {
 }
 
 export async function authSignUp(email, password) {
-  // بدون redirect_to صريح، Supabase يرجع لقيمة Site URL بلوحة التحكم كافتراضي —
-  // ولسه مضبوطة على localhost من مرحلة التطوير. نفس الحل المطبّق بـsignInWithGoogle.
+  // redirect_to نتركه كشبكة أمان لو المستخدم ضغط الرابط بدل ما يدخل الكود —
+  // لكن الاعتماد الأساسي الآن على كود التحقق (OTP) عبر authVerifyOtp أدناه.
   const redirectTo = window.location.origin + '/';
   return authRequest(`/signup?redirect_to=${encodeURIComponent(redirectTo)}`, { email, password });
+}
+
+// يتحقق من كود OTP المرسل بالبريد — يشتغل لكل من تأكيد التسجيل (type='signup')
+// واسترجاع كلمة المرور (type='recovery'). النجاح يرجّع access_token جاهز للاستخدام.
+export async function authVerifyOtp(email, token, type) {
+  return authRequest('/verify', { email, token, type });
+}
+
+// يرسل بريد استرجاع كلمة المرور (يحتوي على كود OTP بدل رابط، بعد تعديل القالب بلوحة Supabase)
+export async function authRecover(email) {
+  const redirectTo = window.location.origin + '/';
+  return authRequest(`/recover?redirect_to=${encodeURIComponent(redirectTo)}`, { email });
+}
+
+// يحدّث كلمة المرور — يُستخدم بجلسة الاسترجاع المؤقتة الناتجة عن authVerifyOtp(type='recovery')
+export async function authUpdatePassword(accessToken, password) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', apikey: ANON_KEY, Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || data.error || 'Auth error');
+  return data;
 }
 
 export async function authSignOut(accessToken) {

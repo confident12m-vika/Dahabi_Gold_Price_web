@@ -8,27 +8,82 @@ import CurrencySelect from '../components/CurrencySelect';
 
 export default function Profile() {
   const { t, lang, setLang } = useLang();
-  const { session, signIn, signUp, signOut, signInWithGoogle, syncProfile } = useAuth();
+  const {
+    session, signIn, signUp, signOut, signInWithGoogle, syncProfile,
+    verifySignupCode, sendPasswordReset, verifyRecoveryCode,
+  } = useAuth();
   const { marketData } = useMarket();
   const { baseCurrency, setBaseCurrency } = useCurrency();
 
+  // signin | signup | verify-signup | forgot | verify-recovery
   const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [code, setCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
 
   const currencies = marketData ? currencyList(marketData.rates) : [baseCurrency];
+
+  function resetTransient() { setError(''); setNotice(''); setCode(''); setNewPassword(''); }
 
   async function handleSubmit() {
     if (!email || !password) return;
     setError('');
     setBusy(true);
     try {
-      if (mode === 'signin') await signIn(email, password);
-      else await signUp(email, password);
+      if (mode === 'signin') {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password);
+      }
     } catch (e) {
-      setError(e.message === 'CHECK_EMAIL' ? t('auth_check_email') : e.message);
+      if (e.message === 'CHECK_EMAIL') {
+        setMode('verify-signup');
+        setNotice(t('auth_code_sent'));
+      } else {
+        setError(e.message);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleVerifySignup() {
+    if (!code) return;
+    setError(''); setBusy(true);
+    try {
+      await verifySignupCode(email, code.trim());
+    } catch (e) {
+      setError(t('auth_code_invalid'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleSendReset() {
+    if (!email) return;
+    setError(''); setBusy(true);
+    try {
+      await sendPasswordReset(email);
+      setMode('verify-recovery');
+      setNotice(t('auth_code_sent'));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleResetPassword() {
+    if (!code || !newPassword) return;
+    setError(''); setBusy(true);
+    try {
+      await verifyRecoveryCode(email, code.trim(), newPassword);
+    } catch (e) {
+      setError(t('auth_code_invalid'));
     } finally {
       setBusy(false);
     }
@@ -82,12 +137,91 @@ export default function Profile() {
     );
   }
 
+  // ── شاشة إدخال كود تأكيد التسجيل ──
+  if (mode === 'verify-signup') {
+    return (
+      <div className="view-inner">
+        <h2>{t('nav_profile')}</h2>
+        <div className="tool-card">
+          <p className="empty-hint" style={{ marginTop: 0 }}>{t('auth_enter_code')} {email}</p>
+          <div className="tool-field">
+            <label>{t('auth_code_label')}</label>
+            <input type="text" inputMode="numeric" maxLength={6} autoComplete="one-time-code"
+              value={code} onChange={(e) => setCode(e.target.value)} />
+          </div>
+          {notice && !error && <div className="empty-hint">{notice}</div>}
+          {error && <div className="auth-error">{error}</div>}
+          <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleVerifySignup} disabled={busy}>
+            {t('auth_verify_btn')}
+          </button>
+          <button className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}
+            onClick={() => { setMode('signin'); resetTransient(); }}>
+            {t('auth_back_to_signin')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── شاشة نسيت كلمة المرور: إدخال البريد لإرسال الكود ──
+  if (mode === 'forgot') {
+    return (
+      <div className="view-inner">
+        <h2>{t('nav_profile')}</h2>
+        <div className="tool-card">
+          <div className="tool-field">
+            <label>{t('auth_email')}</label>
+            <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          {error && <div className="auth-error">{error}</div>}
+          <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleSendReset} disabled={busy}>
+            {t('auth_send_code')}
+          </button>
+          <button className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}
+            onClick={() => { setMode('signin'); resetTransient(); }}>
+            {t('auth_back_to_signin')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── شاشة استرجاع كلمة المرور: إدخال الكود + كلمة مرور جديدة ──
+  if (mode === 'verify-recovery') {
+    return (
+      <div className="view-inner">
+        <h2>{t('nav_profile')}</h2>
+        <div className="tool-card">
+          <p className="empty-hint" style={{ marginTop: 0 }}>{t('auth_enter_code')} {email}</p>
+          <div className="tool-field">
+            <label>{t('auth_code_label')}</label>
+            <input type="text" inputMode="numeric" maxLength={6} autoComplete="one-time-code"
+              value={code} onChange={(e) => setCode(e.target.value)} />
+          </div>
+          <div className="tool-field">
+            <label>{t('auth_new_password')}</label>
+            <input type="password" autoComplete="new-password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+          </div>
+          {notice && !error && <div className="empty-hint">{notice}</div>}
+          {error && <div className="auth-error">{error}</div>}
+          <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleResetPassword} disabled={busy}>
+            {t('auth_reset_btn')}
+          </button>
+          <button className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}
+            onClick={() => { setMode('signin'); resetTransient(); }}>
+            {t('auth_back_to_signin')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="view-inner">
       <h2>{t('nav_profile')}</h2>
       <div className="tabs-strip">
-        <button className={mode === 'signin' ? 'tab-btn active' : 'tab-btn'} onClick={() => { setMode('signin'); setError(''); }}>{t('auth_signin')}</button>
-        <button className={mode === 'signup' ? 'tab-btn active' : 'tab-btn'} onClick={() => { setMode('signup'); setError(''); }}>{t('auth_signup')}</button>
+        <button className={mode === 'signin' ? 'tab-btn active' : 'tab-btn'} onClick={() => { setMode('signin'); resetTransient(); }}>{t('auth_signin')}</button>
+        <button className={mode === 'signup' ? 'tab-btn active' : 'tab-btn'} onClick={() => { setMode('signup'); resetTransient(); }}>{t('auth_signup')}</button>
       </div>
       <div className="tool-card">
         <div className="tool-field">
@@ -98,6 +232,12 @@ export default function Profile() {
           <label>{t('auth_password')}</label>
           <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </div>
+        {mode === 'signin' && (
+          <button type="button" className="link-btn" style={{ display: 'block', marginBottom: 8 }}
+            onClick={() => { setMode('forgot'); resetTransient(); }}>
+            {t('auth_forgot')}
+          </button>
+        )}
         {error && <div className="auth-error">{error}</div>}
         <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleSubmit} disabled={busy}>
           {t(mode === 'signin' ? 'auth_signin_btn' : 'auth_signup_btn')}
