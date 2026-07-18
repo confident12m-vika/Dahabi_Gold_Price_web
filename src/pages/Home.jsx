@@ -4,18 +4,21 @@ import { useLang } from '../contexts/LangContext';
 import { useMarket } from '../contexts/MarketContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import { gramPrice, currencyList, yemenGramPrice, goldRatio, silverRatio } from '../lib/supabase';
 import PriceCard from '../components/PriceCard';
 import CurrencySelect from '../components/CurrencySelect';
 import YemenPriceBox from '../components/YemenPriceBox';
 import ManualPriceButton from '../components/ManualPriceButton';
 import NewsPanel from '../components/NewsPanel';
+import GuestBanner from '../components/GuestBanner';
 
 export default function Home() {
   const { t } = useLang();
   const { marketData, status } = useMarket();
   const { baseCurrency } = useCurrency();
   const { pairs } = useData();
+  const { session } = useAuth();
   const navigate = useNavigate();
 
   const currencies = marketData ? currencyList(marketData.rates) : [baseCurrency];
@@ -78,6 +81,7 @@ export default function Home() {
 
   return (
     <div className="view-inner">
+      {!session && <GuestBanner />}
       <div className="tool-status">
         <span className={`dot-live${status === 'live' ? ' on' : ''}`} />
         <span>{statusText}</span>

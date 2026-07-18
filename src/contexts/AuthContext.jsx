@@ -11,6 +11,22 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [restoring, setRestoring] = useState(true);
+  // null = لسه ما تحقق، true = يحتاج يختار عملته الأساسية (مستخدم جديد), false = خلاص عنده عملة محفوظة
+  const [needsCurrencySetup, setNeedsCurrencySetup] = useState(null);
+
+  // كل ما تصير جلسة جديدة (تسجيل عادي، جوجل، أو استعادة)، نتحقق هل المستخدم
+  // عنده عملة محفوظة بالفعل بجدول profiles — لو لأ، هذا أول دخول له ونطلب منه يختارها
+  useEffect(() => {
+    if (!session) { setNeedsCurrencySetup(null); return; }
+    (async () => {
+      try {
+        const profile = await fetchProfile(session);
+        setNeedsCurrencySetup(!profile?.currency);
+      } catch (_) {
+        setNeedsCurrencySetup(false);
+      }
+    })();
+  }, [session]);
 
   // استعادة الجلسة عند فتح الموقع (أو استقبال عودة تسجيل الدخول بجوجل)
   useEffect(() => {
@@ -60,8 +76,8 @@ export function AuthProvider({ children }) {
     return s;
   }
 
-  async function signUp(email, password) {
-    const data = await authSignUp(email, password);
+  async function signUp(email, password, name) {
+    const data = await authSignUp(email, password, name);
     if (data.access_token) {
       const s = { access_token: data.access_token, refresh_token: data.refresh_token, user: data.user };
       storeSession(s);
@@ -120,10 +136,17 @@ export function AuthProvider({ children }) {
     await updateProfile(session, { language, currency });
   }
 
+  // يُستدعى من شاشة اختيار العملة الأولى (أول دخول فقط) — يحفظ العملة وينهي حالة الإعداد
+  async function completeCurrencySetup(language, currency) {
+    await syncProfile(language, currency);
+    setNeedsCurrencySetup(false);
+  }
+
   return (
     <AuthContext.Provider value={{
       session, restoring, signIn, signUp, signOut, signInWithGoogle, loadRemoteProfile, syncProfile,
       verifySignupCode, sendPasswordReset, verifyRecoveryCode,
+      needsCurrencySetup, completeCurrencySetup,
     }}>
       {children}
     </AuthContext.Provider>

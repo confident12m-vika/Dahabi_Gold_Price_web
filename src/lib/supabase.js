@@ -133,11 +133,13 @@ export async function authSignIn(email, password) {
   return authRequest('/token?grant_type=password', { email, password });
 }
 
-export async function authSignUp(email, password) {
+export async function authSignUp(email, password, name) {
   // redirect_to نتركه كشبكة أمان لو المستخدم ضغط الرابط بدل ما يدخل الكود —
   // لكن الاعتماد الأساسي الآن على كود التحقق (OTP) عبر authVerifyOtp أدناه.
   const redirectTo = window.location.origin + '/';
-  return authRequest(`/signup?redirect_to=${encodeURIComponent(redirectTo)}`, { email, password });
+  return authRequest(`/signup?redirect_to=${encodeURIComponent(redirectTo)}`, {
+    email, password, data: { full_name: name },
+  });
 }
 
 // يتحقق من كود OTP المرسل بالبريد — يشتغل لكل من تأكيد التسجيل (type='signup')
