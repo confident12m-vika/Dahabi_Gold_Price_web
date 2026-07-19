@@ -3,6 +3,13 @@ import { useLang } from '../contexts/LangContext';
 import { useAuth } from '../contexts/AuthContext';
 import { checkEmailExists } from '../lib/supabase';
 
+// ← ينظّف الإيميل من أي رموز غير مرئية (Zero-Width Space، BOM، إلخ) ممكن
+// تنتقل بالغلط عند النسخ من تطبيقات ثانية (واتساب، الملاحظات...) — trim()
+// العادي يشيل بس المسافات بالحواف، مو هالرموز المخفية وسط النص.
+function cleanEmail(raw) {
+  return raw.replace(/[\u200B-\u200D\uFEFF\u00A0\s]/g, '');
+}
+
 // نموذج المصادقة الكامل (دخول/تسجيل/كود تحقق/نسيان كلمة المرور) — مستخدم
 // من صفحة "حسابي" (Profile) لكل من الضيف اللي يبي يسجّل والمستخدم الموجود.
 export default function AuthForm({ showTitle = true }) {
@@ -83,7 +90,7 @@ export default function AuthForm({ showTitle = true }) {
       setMode('verify-recovery');
       setNotice(t('auth_code_sent'));
     } catch (e) {
-      setError(e.message);
+      setError(t('err_generic_network'));
     } finally {
       setBusy(false);
     }
@@ -134,7 +141,7 @@ export default function AuthForm({ showTitle = true }) {
       <div className="tool-card">
         <div className="tool-field">
           <label>{t('auth_email')}</label>
-          <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(cleanEmail(e.target.value))} />
         </div>
         {error && <div className="auth-error">{error}</div>}
         <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleSendReset} disabled={busy}>
@@ -200,7 +207,7 @@ export default function AuthForm({ showTitle = true }) {
         )}
         <div className="tool-field">
           <label>{t('auth_email')}</label>
-          <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(cleanEmail(e.target.value))} />
         </div>
         <div className="tool-field">
           <label>{t('auth_password')}</label>
