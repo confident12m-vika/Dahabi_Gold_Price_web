@@ -223,7 +223,34 @@ export async function deleteAccountEdgeFunction(accessToken) {
   return data;
 }
 
-// ─── جدول favorites (id, user_id, metal, karat, currency) ───
+// ─── PIN المدخرات — مشفّر SHA-256، متزامن مع الحساب، متوافق مع فلاتر ───
+export async function getPinHash(session) {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?id=eq.${session.user.id}&select=pin_hash`,
+    { headers: { apikey: ANON_KEY, Authorization: `Bearer ${session.access_token}` } }
+  );
+  const rows = await res.json();
+  return rows?.[0]?.pin_hash ?? null;
+}
+
+export async function setPinHash(session, hash) {
+  await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${session.user.id}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: ANON_KEY, Authorization: `Bearer ${session.access_token}`,
+      'Content-Type': 'application/json', Prefer: 'return=minimal',
+    },
+    body: JSON.stringify({ pin_hash: hash }),
+  });
+}
+
+// نفس خوارزمية sha256 اللي يستخدمها فلاتر بالضبط (package:crypto) — عشان
+// الهاش يكون متطابق ومتوافق بين المنصتين لنفس رمز PIN.
+export async function sha256Hex(text) {
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
 export async function fetchFavorites(session) {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/favorites?user_id=eq.${session.user.id}&select=*&order=created_at.asc`,

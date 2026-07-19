@@ -8,6 +8,7 @@ import { gramPrice, currencyList, yemenGramPrice, goldRatio, silverRatio } from 
 import CurrencySelect from '../components/CurrencySelect';
 import YemenPriceBox from '../components/YemenPriceBox';
 import Modal from '../components/Modal';
+import SavingsAuth from '../components/SavingsAuth';
 
 export default function Calculator() {
   const { t } = useLang();
@@ -178,6 +179,7 @@ function SavingsPanel() {
   const { t } = useLang();
   const { marketData } = useMarket();
   const { savings, addSaving, removeSaving } = useData();
+  const [unlocked, setUnlocked] = useState(false);
   const [open, setOpen] = useState(false);
   const [karat, setKarat] = useState(21);
   const [weight, setWeight] = useState('');
@@ -234,6 +236,10 @@ function SavingsPanel() {
 
   return (
     <div className="tab-panel active">
+      {!unlocked ? (
+        <SavingsAuth onUnlock={() => setUnlocked(true)} />
+      ) : (
+        <>
       <button className="btn btn-gold btn-sm" onClick={() => setOpen(true)}>{t('savings_add')}</button>
 
       {walletKeys.length > 0 && (
@@ -342,6 +348,8 @@ function SavingsPanel() {
           </div>
         )}
       </Modal>
+        </>
+      )}
     </div>
   );
 }

@@ -334,6 +334,13 @@ h2 { font-size: 24px; font-weight: 800; margin-bottom: 18px; }
 .guest-locked-icon { font-size: 34px; margin-bottom: 10px; }
 .guest-locked-card h3 { font-size: 17px; margin-bottom: 6px; }
 
+.savings-auth-card { text-align: center; max-width: 340px; margin: 20px auto 0; }
+.savings-auth-icon { font-size: 32px; margin-bottom: 8px; }
+.pin-input {
+  width: 100%; text-align: center; font-size: 26px; letter-spacing: 10px; padding: 12px;
+  border: 1px solid var(--border); border-radius: 12px; margin: 14px 0; font-family: inherit;
+}
+
 .danger-zone { margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border); }
 .danger-card { border-color: var(--red); }
 .danger-warning-text { color: var(--red); font-size: 13.5px; line-height: 1.7; margin-bottom: 14px; }
