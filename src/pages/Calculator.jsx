@@ -4,6 +4,7 @@ import { useLang } from '../contexts/LangContext';
 import { useMarket } from '../contexts/MarketContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useData } from '../contexts/DataContext';
+import { useAuth } from '../contexts/AuthContext';
 import { gramPrice, currencyList, yemenGramPrice, goldRatio, silverRatio } from '../lib/supabase';
 import CurrencySelect from '../components/CurrencySelect';
 import YemenPriceBox from '../components/YemenPriceBox';
@@ -177,9 +178,15 @@ function ZakatPanel() {
 // ═══════════ مدخراتي — محفظة منفصلة لكل عملة (واليمن: صنعاء/عدن) ═══════════
 function SavingsPanel() {
   const { t } = useLang();
+  const { session } = useAuth();
   const { marketData } = useMarket();
   const { savings, addSaving, removeSaving } = useData();
+  const lockKey = `savings_lock_enabled_${session?.user?.id || 'guest'}`;
+  // القفل اختياري بالكامل، وغير مفعّل افتراضياً — المستخدم يفعّله بنفسه
+  // بضغطة زر "حماية مدخراتي" لو حبّ، ويقدر يلغيه بضغطة وحدة أي وقت.
+  const [lockEnabled, setLockEnabled] = useState(() => localStorage.getItem(lockKey) === '1');
   const [unlocked, setUnlocked] = useState(false);
+  const [showPinSetup, setShowPinSetup] = useState(false);
   const [open, setOpen] = useState(false);
   const [karat, setKarat] = useState(21);
   const [weight, setWeight] = useState('');
@@ -187,6 +194,18 @@ function SavingsPanel() {
   const [currency, setCurrency] = useState('SAR');
   const [city, setCity] = useState('sanaa');
   const currencies = marketData ? currencyList(marketData.rates) : ['SAR'];
+
+  function handleProtectClick() { setShowPinSetup(true); }
+  function handlePinSetupDone() {
+    localStorage.setItem(lockKey, '1');
+    setLockEnabled(true);
+    setUnlocked(true);
+    setShowPinSetup(false);
+  }
+  function handleDisableLock() {
+    localStorage.setItem(lockKey, '0');
+    setLockEnabled(false);
+  }
 
   const wallets = useMemo(() => {
     const w = {};
@@ -236,10 +255,22 @@ function SavingsPanel() {
 
   return (
     <div className="tab-panel active">
-      {!unlocked ? (
+      {lockEnabled && !unlocked ? (
         <SavingsAuth onUnlock={() => setUnlocked(true)} />
       ) : (
         <>
+      <div className="savings-lock-row">
+        {lockEnabled ? (
+          <button className="savings-lock-btn locked" onClick={handleDisableLock}>
+            🔒 {t('savings_protection_on')}
+          </button>
+        ) : (
+          <button className="savings-lock-btn" onClick={handleProtectClick}>
+            🔓 {t('savings_protect_cta')}
+          </button>
+        )}
+      </div>
+
       <button className="btn btn-gold btn-sm" onClick={() => setOpen(true)}>{t('savings_add')}</button>
 
       {walletKeys.length > 0 && (
@@ -348,6 +379,12 @@ function SavingsPanel() {
           </div>
         )}
       </Modal>
+
+      {showPinSetup && (
+        <Modal open={showPinSetup} onClose={() => setShowPinSetup(false)} title={t('savings_protect_cta')} hideFooter>
+          <SavingsAuth onUnlock={handlePinSetupDone} />
+        </Modal>
+      )}
         </>
       )}
     </div>

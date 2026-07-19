@@ -84,6 +84,7 @@ export const I18N = {
     forgot_pin_desc:'سنرسل لك كود تحقق على بريدك، وبعد إدخاله تقدر تنشئ رمز PIN جديد.',
     savings_create_pin_title:'أنشئ رمز حماية للمدخرات', savings_create_pin_desc:'رمز من 4 أرقام على الأقل يحمي مدخراتك، ويُطلب منك كل ما تفتح هذا القسم.',
     savings_enter_pin_title:'أدخل رمز الحماية', savings_confirm_btn:'تأكيد',
+    savings_protect_cta:'حماية مدخراتي', savings_protection_on:'الحماية مفعّلة — إلغاء',
     reset_local_only:'أنت مسجّل دخول — بياناتك محفوظة بحسابك على السيرفر.',
     reset_confirm:'هل أنت متأكد؟',
   
@@ -202,6 +203,7 @@ export const I18N = {
     forgot_pin_desc:"We'll send a verification code to your email, then you can set a new PIN.",
     savings_create_pin_title:'Create a savings PIN', savings_create_pin_desc:'A 4+ digit code that protects your savings, asked every time you open this section.',
     savings_enter_pin_title:'Enter your PIN', savings_confirm_btn:'Confirm',
+    savings_protect_cta:'Protect my savings', savings_protection_on:'Protection is on — disable',
     reset_local_only:'You are signed in — your data is saved to your server account.',
     reset_confirm:'Are you sure?',
   
@@ -320,6 +322,7 @@ export const I18N = {
     forgot_pin_desc:'Te enviaremos un código a tu correo, luego podrás crear un nuevo PIN.',
     savings_create_pin_title:'Crea un PIN de ahorros', savings_create_pin_desc:'Un código de 4+ dígitos que protege tus ahorros, se pedirá cada vez que abras esta sección.',
     savings_enter_pin_title:'Ingresa tu PIN', savings_confirm_btn:'Confirmar',
+    savings_protect_cta:'Proteger mis ahorros', savings_protection_on:'Protección activada — desactivar',
     reset_local_only:'Has iniciado sesión — tus datos están guardados en tu cuenta del servidor.',
     reset_confirm:'¿Estás seguro?',
   
@@ -438,6 +441,7 @@ export const I18N = {
     forgot_pin_desc:'Мы отправим код подтверждения на вашу почту, затем вы сможете создать новый PIN.',
     savings_create_pin_title:'Создайте PIN для сбережений', savings_create_pin_desc:'Код из 4+ цифр, защищающий ваши сбережения, запрашивается при каждом открытии этого раздела.',
     savings_enter_pin_title:'Введите PIN', savings_confirm_btn:'Подтвердить',
+    savings_protect_cta:'Защитить сбережения', savings_protection_on:'Защита включена — отключить',
     reset_local_only:'Вы вошли в аккаунт — данные сохранены на сервере.',
     reset_confirm:'Вы уверены?',
   

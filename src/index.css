@@ -341,6 +341,14 @@ h2 { font-size: 24px; font-weight: 800; margin-bottom: 18px; }
   border: 1px solid var(--border); border-radius: 12px; margin: 14px 0; font-family: inherit;
 }
 
+.savings-lock-row { margin-bottom: 12px; }
+.savings-lock-btn {
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 8px 14px; font-family: inherit; font-weight: 700; font-size: 12.5px;
+  color: var(--text-soft); cursor: pointer;
+}
+.savings-lock-btn.locked { background: #FDF3D8; border-color: var(--gold); color: var(--gold-dark); }
+
 .danger-zone { margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border); }
 .danger-card { border-color: var(--red); }
 .danger-warning-text { color: var(--red); font-size: 13.5px; line-height: 1.7; margin-bottom: 14px; }
