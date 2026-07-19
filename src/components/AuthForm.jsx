@@ -3,11 +3,11 @@ import { useLang } from '../contexts/LangContext';
 import { useAuth } from '../contexts/AuthContext';
 import { checkEmailExists } from '../lib/supabase';
 
-// ← ينظّف الإيميل من أي رموز غير مرئية (Zero-Width Space، BOM، إلخ) ممكن
-// تنتقل بالغلط عند النسخ من تطبيقات ثانية (واتساب، الملاحظات...) — trim()
-// العادي يشيل بس المسافات بالحواف، مو هالرموز المخفية وسط النص.
+// ← ينظّف الإيميل من أي رموز غير مرئية ممكن تنتقل بالغلط عند النسخ —
+// موسّعة لتشمل علامات اتجاه النص (RTL/LRM) اللي بعض كيبوردات العربية
+// تضيفها تلقائياً، بالإضافة لـZero-Width Space وBOM والمسافات.
 function cleanEmail(raw) {
-  return raw.replace(/[\u200B-\u200D\uFEFF\u00A0\s]/g, '');
+  return raw.replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF\u00A0\s]/g, '');
 }
 
 // نموذج المصادقة الكامل (دخول/تسجيل/كود تحقق/نسيان كلمة المرور) — مستخدم
