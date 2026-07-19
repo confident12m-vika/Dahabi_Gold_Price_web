@@ -334,6 +334,12 @@ h2 { font-size: 24px; font-weight: 800; margin-bottom: 18px; }
 .guest-locked-icon { font-size: 34px; margin-bottom: 10px; }
 .guest-locked-card h3 { font-size: 17px; margin-bottom: 6px; }
 
+.danger-zone { margin-top: 24px; padding-top: 18px; border-top: 1px dashed var(--border); }
+.danger-card { border-color: var(--red); }
+.danger-warning-text { color: var(--red); font-size: 13.5px; line-height: 1.7; margin-bottom: 14px; }
+.btn-danger { background: var(--red); color: #fff; border: none; }
+.btn-danger-outline { background: none; border: 1px solid var(--red); color: var(--red); }
+
 /* ── شاشة الترحيب الأولى (Onboarding) ── */
 .onboarding-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--bg, #FAF7EF); }
 .onboarding-card { width: 100%; max-width: 420px; }

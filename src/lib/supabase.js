@@ -210,6 +210,19 @@ export async function updateProfile(session, { language, currency }) {
   } catch (_) {}
 }
 
+// يستدعي Edge Function "delete-account" — يحذف الحساب حذفاً حقيقياً نهائياً
+// من auth.users بالإضافة لكل بياناته. accessToken هنا لازم يكون ناتج تحقق
+// كود OTP الأخير (إثبات ملكية حديث)، مو أي جلسة قديمة.
+export async function deleteAccountEdgeFunction(accessToken) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/delete-account`, {
+    method: 'POST',
+    headers: { apikey: ANON_KEY, Authorization: `Bearer ${accessToken}` },
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'delete failed');
+  return data;
+}
+
 // ─── جدول favorites (id, user_id, metal, karat, currency) ───
 export async function fetchFavorites(session) {
   const res = await fetch(

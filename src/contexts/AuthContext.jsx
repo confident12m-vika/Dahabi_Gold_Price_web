@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import {
   authSignIn, authSignUp, authSignOut, authGetUser, authRefresh, fetchProfile, updateProfile,
-  authVerifyOtp, authRecover, authUpdatePassword,
+  authVerifyOtp, authRecover, authUpdatePassword, deleteAccountEdgeFunction,
   SUPABASE_URL, ANON_KEY,
 } from '../lib/supabase';
 import { loadSession, storeSession, clearSession } from '../lib/localStore';
@@ -14,18 +14,17 @@ export function AuthProvider({ children }) {
   // null = لسه ما تحقق، true = يحتاج يختار عملته الأساسية (مستخدم جديد), false = خلاص عنده عملة محفوظة
   const [needsCurrencySetup, setNeedsCurrencySetup] = useState(null);
 
-  // كل ما تصير جلسة جديدة (تسجيل عادي، جوجل، أو استعادة)، نتحقق هل المستخدم
-  // عنده عملة محفوظة بالفعل بجدول profiles — لو لأ، هذا أول دخول له ونطلب منه يختارها
+  // كل ما تصير جلسة جديدة، نحدّد هل هذا "أول دخول فعلي" للمستخدم عشان نطلب
+  // منه يختار عملته الأساسية. ما نعتمد على عمود currency بجدول profiles لأنه
+  // احتمال فيه Trigger يحط قيمة افتراضية (USD) تلقائياً عند إنشاء الصف، وهذا
+  // كان يخلي الفحص القديم يفوّت الشاشة بالغلط. بدل كذا نعتمد على created_at
+  // الحقيقي لحساب المستخدم من Supabase نفسه — لو الحساب انشئ قبل أقل من 20
+  // دقيقة، نعتبره "جديد" ونطلب منه العملة (يغطي تأخر إدخال كود التحقق بالبريد).
   useEffect(() => {
     if (!session) { setNeedsCurrencySetup(null); return; }
-    (async () => {
-      try {
-        const profile = await fetchProfile(session);
-        setNeedsCurrencySetup(!profile?.currency);
-      } catch (_) {
-        setNeedsCurrencySetup(false);
-      }
-    })();
+    const createdAt = session.user?.created_at;
+    const isBrandNew = createdAt && (Date.now() - new Date(createdAt).getTime()) < 20 * 60 * 1000;
+    setNeedsCurrencySetup(!!isBrandNew);
   }, [session]);
 
   // استعادة الجلسة عند فتح الموقع (أو استقبال عودة تسجيل الدخول بجوجل)
@@ -111,6 +110,24 @@ export function AuthProvider({ children }) {
     return s;
   }
 
+  // يرسل كود تحقق لبريد المستخدم الحالي لتأكيد نيّة حذف الحساب (نفس آلية OTP الاسترجاع)
+  async function requestAccountDeletion() {
+    if (!session) return;
+    await authRecover(session.user.email);
+  }
+
+  // يتحقق من الكود، ولو صحيح يستدعي Edge Function لحذف الحساب حذفاً حقيقياً
+  // ونهائياً (auth.users + كل البيانات)، ثم يسجّل خروجه محلياً
+  async function confirmAccountDeletion(code) {
+    if (!session) return;
+    // access_token الناتج هنا "طازج" (لحظة التحقق) — نستخدمه هو بالذات
+    // لاستدعاء الحذف، مو جلسة session القديمة، كإثبات ملكية حديث.
+    const verified = await authVerifyOtp(session.user.email, code, 'recovery');
+    await deleteAccountEdgeFunction(verified.access_token);
+    clearSession();
+    setSession(null);
+  }
+
   async function signOut() {
     if (session) await authSignOut(session.access_token);
     clearSession();
@@ -147,6 +164,7 @@ export function AuthProvider({ children }) {
       session, restoring, signIn, signUp, signOut, signInWithGoogle, loadRemoteProfile, syncProfile,
       verifySignupCode, sendPasswordReset, verifyRecoveryCode,
       needsCurrencySetup, completeCurrencySetup,
+      requestAccountDeletion, confirmAccountDeletion,
     }}>
       {children}
     </AuthContext.Provider>

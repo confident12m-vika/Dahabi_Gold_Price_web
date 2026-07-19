@@ -3,7 +3,7 @@ import { useLang } from '../contexts/LangContext';
 import { useAuth } from '../contexts/AuthContext';
 
 // نموذج المصادقة الكامل (دخول/تسجيل/كود تحقق/نسيان كلمة المرور) — مستخدم
-// من صفحة "حسابي" (Profile) ومن شاشة الترحيب الأولى (Onboarding) بنفس المنطق.
+// من صفحة "حسابي" (Profile) لكل من الضيف اللي يبي يسجّل والمستخدم الموجود.
 export default function AuthForm({ showTitle = true }) {
   const { t } = useLang();
   const {
@@ -47,6 +47,8 @@ export default function AuthForm({ showTitle = true }) {
       if (e.message === 'CHECK_EMAIL') {
         setMode('verify-signup');
         setNotice(t('auth_code_sent'));
+      } else if (mode === 'signin' && /invalid login credentials/i.test(e.message)) {
+        setError(t('auth_signin_failed_hint'));
       } else {
         setError(e.message);
       }
@@ -98,6 +100,10 @@ export default function AuthForm({ showTitle = true }) {
     return (
       <div className="tool-card">
         <p className="empty-hint" style={{ marginTop: 0 }}>{t('auth_enter_code')} {email}</p>
+        <button type="button" className="link-btn" style={{ display: 'block', marginBottom: 10 }}
+          onClick={() => { setMode('signin'); resetTransient(); }}>
+          {t('auth_already_have_account')}
+        </button>
         <div className="tool-field">
           <label>{t('auth_code_label')}</label>
           <input type="text" inputMode="numeric" maxLength={6} autoComplete="one-time-code"
