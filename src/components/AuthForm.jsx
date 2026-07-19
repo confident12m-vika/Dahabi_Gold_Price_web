@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLang } from '../contexts/LangContext';
 import { useAuth } from '../contexts/AuthContext';
+import { checkEmailExists } from '../lib/supabase';
 
 // نموذج المصادقة الكامل (دخول/تسجيل/كود تحقق/نسيان كلمة المرور) — مستخدم
 // من صفحة "حسابي" (Profile) لكل من الضيف اللي يبي يسجّل والمستخدم الموجود.
@@ -73,6 +74,11 @@ export default function AuthForm({ showTitle = true }) {
     if (!email) return;
     setError(''); setBusy(true);
     try {
+      const exists = await checkEmailExists(email);
+      if (!exists) {
+        setError(t('auth_no_account_found'));
+        return;
+      }
       await sendPasswordReset(email);
       setMode('verify-recovery');
       setNotice(t('auth_code_sent'));
@@ -138,6 +144,12 @@ export default function AuthForm({ showTitle = true }) {
           onClick={() => { setMode('signin'); resetTransient(); }}>
           {t('auth_back_to_signin')}
         </button>
+        {error === t('auth_no_account_found') && (
+          <button type="button" className="link-btn" style={{ display: 'block', marginTop: 12 }}
+            onClick={() => { setMode('signup'); resetTransient(); }}>
+            {t('auth_no_account_yet')}
+          </button>
+        )}
       </div>
     );
   }
@@ -164,6 +176,10 @@ export default function AuthForm({ showTitle = true }) {
         <button className="btn btn-outline" style={{ width: '100%', marginTop: 8 }}
           onClick={() => { setMode('signin'); resetTransient(); }}>
           {t('auth_back_to_signin')}
+        </button>
+        <button type="button" className="link-btn" style={{ display: 'block', marginTop: 12 }}
+          onClick={() => { setMode('signup'); resetTransient(); }}>
+          {t('auth_no_account_yet')}
         </button>
       </div>
     );

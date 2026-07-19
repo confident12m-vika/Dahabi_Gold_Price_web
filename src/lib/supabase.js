@@ -223,6 +223,18 @@ export async function deleteAccountEdgeFunction(accessToken) {
   return data;
 }
 
+// يتحقق هل فيه حساب مسجّل بهذا الإيميل — يُستخدم بشاشة "نسيت كلمة المرور"
+// فقط، بطلب صريح من صاحب المنتج (يخالف توصية الأمان القياسية، قرار واعٍ).
+export async function checkEmailExists(email) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/check-email-exists`, {
+    method: 'POST',
+    headers: { apikey: ANON_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'check failed');
+  return !!data.exists;
+}
 // ─── PIN المدخرات — مشفّر SHA-256، متزامن مع الحساب، متوافق مع فلاتر ───
 export async function getPinHash(session) {
   const res = await fetch(
