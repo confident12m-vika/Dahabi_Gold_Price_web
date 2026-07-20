@@ -15,6 +15,7 @@ import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Privacy from './pages/Privacy';
+import DeleteAccountInfo from './pages/DeleteAccountInfo';
 import About from './pages/About';
 import Premium from './pages/Premium';
 import CurrencySetup from './pages/CurrencySetup';
@@ -47,6 +48,7 @@ export default function App() {
           {/* صفحات مفتوحة للجميع بدون أي قيد */}
           <Route path="/profile" element={<Profile />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/delete-account" element={<DeleteAccountInfo />} />
           <Route path="/about" element={<About />} />
           <Route path="/premium" element={<Premium />} />
 
