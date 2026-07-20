@@ -21,6 +21,9 @@ const content = {
       </ul>
       <h2>متى يتم الحذف؟</h2>
       <p>الحذف <strong>فوري</strong> بمجرد تأكيد الكود — لا توجد فترة انتظار، ولا تُحتفظ بأي نسخة من بياناتك بعد الحذف.</p>
+      <h2>تفضّل الحذف عبر المتصفح مباشرة؟</h2>
+      <p>يمكنك أيضاً حذف حسابك مباشرة من موقعنا الإلكتروني بنفس الخطوات (تسجيل دخول → كود تأكيد → حذف فوري)، بدون الحاجة لفتح التطبيق.</p>
+      <a href="/profile" class="btn btn-gold" style="display:inline-block;text-decoration:none;">احذف حسابك الآن عبر الويب</a>
       <div class="contact-box">
         لأي استفسار حول حذف الحساب:<br>
         <a href="mailto:dahabiapp@gmail.com">dahabiapp@gmail.com</a>
@@ -47,6 +50,9 @@ const content = {
       </ul>
       <h2>When does deletion happen?</h2>
       <p>Deletion is <strong>immediate</strong> once the code is confirmed — no waiting period, and no copy of your data is retained afterward.</p>
+      <h2>Prefer to delete from your browser directly?</h2>
+      <p>You can also delete your account directly from our website with the same steps (sign in → confirmation code → immediate deletion), without needing to open the app.</p>
+      <a href="/profile" class="btn btn-gold" style="display:inline-block;text-decoration:none;">Delete your account now via web</a>
       <div class="contact-box">
         For questions about account deletion:<br>
         <a href="mailto:dahabiapp@gmail.com">dahabiapp@gmail.com</a>
@@ -73,6 +79,9 @@ const content = {
       </ul>
       <h2>¿Cuándo ocurre la eliminación?</h2>
       <p>La eliminación es <strong>inmediata</strong> tras confirmar el código — sin período de espera, y no se conserva ninguna copia de tus datos después.</p>
+      <h2>¿Prefieres eliminar desde tu navegador?</h2>
+      <p>También puedes eliminar tu cuenta directamente desde nuestro sitio web con los mismos pasos (iniciar sesión → código de confirmación → eliminación inmediata), sin necesidad de abrir la app.</p>
+      <a href="/profile" class="btn btn-gold" style="display:inline-block;text-decoration:none;">Elimina tu cuenta ahora vía web</a>
       <div class="contact-box">
         Para consultas sobre eliminación de cuenta:<br>
         <a href="mailto:dahabiapp@gmail.com">dahabiapp@gmail.com</a>
@@ -99,6 +108,9 @@ const content = {
       </ul>
       <h2>Когда происходит удаление?</h2>
       <p>Удаление происходит <strong>немедленно</strong> после подтверждения кода — без периода ожидания, копия данных не сохраняется.</p>
+      <h2>Хотите удалить через браузер?</h2>
+      <p>Вы также можете удалить аккаунт прямо на нашем сайте по тем же шагам (вход → код подтверждения → мгновенное удаление), без необходимости открывать приложение.</p>
+      <a href="/profile" class="btn btn-gold" style="display:inline-block;text-decoration:none;">Удалить аккаунт сейчас через веб</a>
       <div class="contact-box">
         По вопросам удаления аккаунта:<br>
         <a href="mailto:dahabiapp@gmail.com">dahabiapp@gmail.com</a>
